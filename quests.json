@@ -5,13 +5,14 @@
       "name": "ミノタウロス",
       "hp": 120,
       "attack": 10,
-      "image": "minotaur.png" 
+      "image": "minotaur.png"
     },
+    "story": "賢者は言う。「古の迷宮には、恐ろしくも<brave>なミノタウロスが潜んでいる。強力な<sword>と<shield>で武装しているという。君の<magic>で、この脅威への<attack>を試みてくれ。」",
     "exp_reward": 50,
-    "loot_table": ["re", "spect"],
     "item_loot": [
       { "id": "potion_hp_small", "chance": 0.3 }
     ],
+    "loot_table": ["re", "spect"],
     "words": {
       "attack": { "part": "動詞", "jp": "攻撃する" },
       "strike": { "part": "動詞", "jp": "打つ" },
@@ -29,14 +30,15 @@
       "name": "ギガースライム",
       "hp": 70,
       "attack": 5,
-      "image": "slime.png" 
+      "image": "slime.png"
     },
+    "story": "村の少年が駆け込んできた。「沼に巨大なスライムが！ とても<cold>な<water>を飛ばしてくるんだ。兄さんがやられちゃう、早く<run>して助けて！」",
     "exp_reward": 25,
-    "loot_table": ["pre", "view"],
     "item_loot": [
       { "id": "potion_hp_small", "chance": 0.5 },
       { "id": "drink_charge_small", "chance": 0.2 }
     ],
+    "loot_table": ["pre", "view"],
     "words": {
       "see": { "part": "動詞", "jp": "見る" },
       "run": { "part": "動詞", "jp": "走る" },

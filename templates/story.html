@@ -1,0 +1,34 @@
+<!-- templates/story.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Lexicon Chronicle - 物語</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f0f0; text-align: center; padding-top: 50px; }
+        .container { max-width: 600px; margin: 20px auto; padding: 40px; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        .story-box { text-align: left; background-color: #fafafa; border: 1px solid #ddd; padding: 20px; margin: 30px 0; min-height: 100px; line-height: 1.6; }
+        .story-box b { color: #007bff; } /* タグで囲んだ単語をハイライト */
+        .action-button { display: inline-block; margin-top: 20px; padding: 15px 30px; background-color: #dc3545; color: white; text-decoration: none; font-size: 1.5em; border-radius: 5px; border: none; cursor: pointer; }
+        .action-button:hover { background-color: #c82333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ quest.name }}</h1>
+        
+        <div class="story-box">
+            <!-- safeフィルターを使って、HTMLタグを解釈させる -->
+            <p>{{ story_html|safe }}</p>
+        </div>
+
+        <form action="/battle" method="POST">
+            <button type="submit" class="action-button">
+                戦闘開始！
+            </button>
+        </form>
+
+    </div>
+</body>
+</html>

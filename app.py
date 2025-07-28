@@ -1,13 +1,14 @@
-# app.py (アイテムシステム完全版)
+# app.py (ストーリーハイライト処理 修正版)
 
 import random
 import json
+import re # ★★★ 正規表現ライブラリをインポート ★★★
 from flask import Flask, render_template, request, redirect, url_for, session
 
 app = Flask(__name__)
 app.secret_key = 'your_very_secret_key_12345'
 
-# (load_dataから一番下まで、以前のコードをすべてこれで置き換えてください)
+# (load_dataからinit_player_statusまでは変更なし)
 def load_data():
     with open('quests.json', 'r', encoding='utf-8') as f:
         quests_data = json.load(f)
@@ -32,6 +33,8 @@ def init_player_status():
     session['inventory'] = {}
     session['known_words'] = []
     session['mistaken_words'] = []
+
+# (set_new_questionも変更なし)
 def set_new_question():
     quest_id = session.get('current_quest_id')
     word_info = None
@@ -52,12 +55,16 @@ def set_new_question():
     if word_info:
         session['question_jp'] = word_info.get('jp')
         session['word_part'] = word_info.get('part')
+
+# (start_pageも変更なし)
 @app.route('/')
 def start_page():
     if 'level' not in session: init_player_status()
     result_message = session.pop('result_message', None)
     review_needed = bool(session.get('mistaken_words'))
     return render_template('start.html', result_message=result_message, quests=QUESTS, review_needed=review_needed, session=session)
+
+# (start_questも変更なし)
 @app.route('/start_quest', methods=['POST'])
 def start_quest():
     quest_id = request.form.get('quest_id')
@@ -70,23 +77,44 @@ def start_quest():
         session['monster_name'] = "記憶の幻影"
         session['monster_attack'] = 5
         session['monster_image'] = "phantom.png"
-    else:
-        if quest_id not in QUESTS: return redirect(url_for('start_page'))
-        quest_data = QUESTS[quest_id]
-        session['current_quest_id'] = quest_id
-        session['player_hp'] = session.get('max_hp', 50) 
-        session['monster_hp'] = quest_data['monster']['hp']
-        session['monster_name'] = quest_data['monster']['name']
-        session['monster_attack'] = quest_data['monster']['attack']
-        session['monster_image'] = quest_data['monster']['image']
-    session['charge_power'] = 0
-    session['message'] = f"{session['monster_name']}が現れた！"
-    set_new_question()
-    return redirect(url_for('battle_page'))
-@app.route('/battle')
+        session['message'] = f"{session['monster_name']}が現れた！"
+        set_new_question()
+        return redirect(url_for('battle_page'))
+    if quest_id not in QUESTS: return redirect(url_for('start_page'))
+    quest_data = QUESTS[quest_id]
+    session['current_quest_id'] = quest_id
+    session['player_hp'] = session.get('max_hp', 50) 
+    session['monster_hp'] = quest_data['monster']['hp']
+    session['monster_name'] = quest_data['monster']['name']
+    session['monster_attack'] = quest_data['monster']['attack']
+    session['monster_image'] = quest_data['monster']['image']
+    return redirect(url_for('story_page'))
+
+# --- [変更] story_page を修正 ---
+@app.route('/story')
+def story_page():
+    quest_id = session.get('current_quest_id')
+    if not quest_id or (quest_id != 'q_review' and quest_id not in QUESTS):
+        return redirect(url_for('start_page'))
+    
+    quest_data = QUESTS[quest_id]
+    story_text = quest_data.get('story', 'このクエストには物語がありません。')
+    
+    # ★★★ 正規表現を使って、<word> を <b>word</b> に安全に置換 ★★★
+    story_html = re.sub(r'<(\w+)>', r'<b>\1</b>', story_text)
+
+    return render_template('story.html', quest=quest_data, story_html=story_html)
+
+# (battle_page以降、一番下までは変更なし)
+@app.route('/battle', methods=['GET', 'POST'])
 def battle_page():
-    if 'player_hp' not in session or 'current_quest_id' not in session: return redirect(url_for('start_page'))
-    return render_template('battle.html', session=session, RECIPES=RECIPES, ITEMS=ITEMS) # ITEMSも渡す
+    if request.method == 'POST':
+        session['charge_power'] = 0
+        session['message'] = f"{session.get('monster_name')}が現れた！"
+        set_new_question()
+    if 'player_hp' not in session or 'current_quest_id' not in session: 
+        return redirect(url_for('start_page'))
+    return render_template('battle.html', session=session, RECIPES=RECIPES, ITEMS=ITEMS)
 @app.route('/submit_answer', methods=['POST'])
 def submit_answer():
     quest_id = session.get('current_quest_id')
@@ -253,7 +281,6 @@ def cast_spell():
                     session['player_hp'] = session.get('max_hp', 50)
                 session['message'] = f"「{spell_data['name']}」を詠唱！HPが {power} 回復した！"
             if session['monster_hp'] <= 0:
-                quest_id = session.get('current_quest_id')
                 session['result_message'] = f"クエスト成功！"
                 return redirect(url_for('start_page'))
         else:
