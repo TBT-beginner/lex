@@ -1,0 +1,41 @@
+{
+  "review": {
+    "name": "review",
+    "jp": "復習する、見直す",
+    "part": "動詞",
+    "description": "「再び見る」の意から、物事を再検討したり、学んだことを見直したりする際に使う。",
+    "materials": { "re": 1, "view": 1 },
+    "spell": {
+      "name": "追憶の光",
+      "effect": "damage",
+      "power": 50,
+      "cost": 30
+    }
+  },
+  "respect": {
+    "name": "respect",
+    "jp": "尊敬する",
+    "part": "動詞",
+    "description": "「再び見る」の意から転じて、何度も見る価値のある人物として相手を敬う際に使う。",
+    "materials": { "re": 1, "spect": 1 },
+    "spell": {
+      "name": "リスペクト・フレア",
+      "effect": "damage",
+      "power": 60,
+      "cost": 40
+    }
+  },
+  "preview": {
+    "name": "preview",
+    "jp": "下見する、予告編",
+    "part": "動詞/名詞",
+    "description": "「前に見る」の意から、物事が始まる前にあらかじめ見ておくこと。",
+    "materials": { "pre": 1, "view": 1 },
+    "spell": {
+      "name": "先見の眼差し",
+      "effect": "heal",
+      "power": 30,
+      "cost": 25
+    }
+  }
+}

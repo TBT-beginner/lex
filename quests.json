@@ -1,0 +1,44 @@
+{
+  "q1_maze": {
+    "name": "ミノタウロスの迷宮",
+    "monster": {
+      "name": "ミノタウロス",
+      "hp": 120,
+      "attack": 10,
+      "image": "minotaur.png" 
+    },
+    "exp_reward": 50,
+    "loot_table": ["re", "spect"],
+    "words": {
+      "attack": { "part": "動詞", "jp": "攻撃する" },
+      "strike": { "part": "動詞", "jp": "打つ" },
+      "defend": { "part": "動詞", "jp": "防御する" },
+      "sword": { "part": "名詞", "jp": "剣" },
+      "shield": { "part": "名詞", "jp": "盾" },
+      "magic": { "part": "名詞", "jp": "魔法" },
+      "brave": { "part": "形容詞", "jp": "勇敢な" },
+      "heavy": { "part": "形容詞", "jp": "重い" }
+    }
+  },
+  "q2_swamp": {
+    "name": "スライムの沼",
+    "monster": {
+      "name": "ギガースライム",
+      "hp": 70,
+      "attack": 5,
+      "image": "slime.png" 
+    },
+    "exp_reward": 25,
+    "loot_table": ["pre", "view"],
+    "words": {
+      "see": { "part": "動詞", "jp": "見る" },
+      "run": { "part": "動詞", "jp": "走る" },
+      "eat": { "part": "動詞", "jp": "食べる" },
+      "water": { "part": "名詞", "jp": "水" },
+      "fire": { "part": "名詞", "jp": "火" },
+      "wind": { "part": "名詞", "jp": "風" },
+      "good": { "part": "形容詞", "jp": "良い" },
+      "cold": { "part": "形容詞", "jp": "冷たい" }
+    }
+  }
+}

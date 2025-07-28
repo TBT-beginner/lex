@@ -1,0 +1,30 @@
+{
+  "sharp_strike": {
+    "name": "鋭い一撃 (ティア1)",
+    "path": "動詞の道",
+    "description": "動詞による基本攻撃力が永続的に+3される。",
+    "cost": 1,
+    "prerequisite": null
+  },
+  "critical_word": {
+    "name": "会心の一撃 (ティア2)",
+    "path": "動詞の道",
+    "description": "動詞による攻撃時、15%の確率でダメージが2倍になる。",
+    "cost": 1,
+    "prerequisite": "sharp_strike"
+  },
+  "efficient_charge": {
+    "name": "効率的な充填 (ティア1)",
+    "path": "補助の道",
+    "description": "名詞・形容詞によるチャージ量が永続的に+5される。",
+    "cost": 1,
+    "prerequisite": null
+  },
+  "resilient_focus": {
+    "name": "不屈の集中 (ティア2)",
+    "path": "補助の道",
+    "description": "詠唱失敗時、チャージパワーが半分だけ失われるようになる。",
+    "cost": 1,
+    "prerequisite": "efficient_charge"
+  }
+}

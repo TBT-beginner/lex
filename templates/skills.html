@@ -1,0 +1,91 @@
+<!-- templates/skills.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>スキルツリー</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f0f0; text-align: center; padding-top: 20px; }
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .skill-path { margin-top: 20px; border-top: 2px solid #007bff; padding-top: 15px; }
+        .skill-item { border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 5px; text-align: left; position: relative; }
+        .skill-item h4 { margin: 0 0 5px 0; }
+        .skill-actions { position: absolute; top: 15px; right: 15px; }
+        .learn-button { background-color: #007bff; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; }
+        .learn-button:disabled { background-color: #ccc; cursor: not-allowed; }
+        .learned-badge { background-color: #28a745; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.9em; }
+        .prereq-note { font-size: 0.8em; color: #dc3545; }
+        .back-link { margin-top: 20px; display: inline-block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>スキルツリー</h2>
+        <p>利用可能なスキルポイント: <strong>{{ session.skill_points }}</strong></p>
+        
+        {% if session.get('result_message') %}
+            <p style="color: green;">{{ session.pop('result_message') }}</p>
+        {% endif %}
+
+        <!-- 動詞の道 -->
+        <div class="skill-path">
+            <h3>【動詞の道】</h3>
+            {% for skill_id, skill_info in skills.items() if skill_info.path == '動詞の道' %}
+            <div class="skill-item">
+                <div class="skill-actions">
+                    {% if skill_id in session.learned_skills %}
+                        <span class="learned-badge">習得済み</span>
+                    {% else %}
+                        {% set prereq = skill_info.prerequisite %}
+                        {% set prereq_met = not prereq or prereq in session.learned_skills %}
+                        <form action="/learn_skill" method="POST" style="display: inline;">
+                            <input type="hidden" name="skill_id" value="{{ skill_id }}">
+                            <button type="submit" class="learn-button" {% if not prereq_met or session.skill_points < skill_info.cost %}disabled{% endif %}>
+                                SP {{ skill_info.cost }} 使用
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+                <h4>{{ skill_info.name }}</h4>
+                <p>{{ skill_info.description }}</p>
+                {% set prereq = skill_info.prerequisite %}
+                {% if prereq and prereq not in session.learned_skills %}
+                    <p class="prereq-note">前提条件: 「{{ skills[prereq].name }}」の習得</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- 補助の道 -->
+        <div class="skill-path">
+            <h3>【補助の道】</h3>
+            {% for skill_id, skill_info in skills.items() if skill_info.path == '補助の道' %}
+            <div class="skill-item">
+                <div class="skill-actions">
+                    {% if skill_id in session.learned_skills %}
+                        <span class="learned-badge">習得済み</span>
+                    {% else %}
+                        {% set prereq = skill_info.prerequisite %}
+                        {% set prereq_met = not prereq or prereq in session.learned_skills %}
+                        <form action="/learn_skill" method="POST" style="display: inline;">
+                            <input type="hidden" name="skill_id" value="{{ skill_id }}">
+                            <button type="submit" class="learn-button" {% if not prereq_met or session.skill_points < skill_info.cost %}disabled{% endif %}>
+                                SP {{ skill_info.cost }} 使用
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+                <h4>{{ skill_info.name }}</h4>
+                <p>{{ skill_info.description }}</p>
+                {% set prereq = skill_info.prerequisite %}
+                {% if prereq and prereq not in session.learned_skills %}
+                    <p class="prereq-note">前提条件: 「{{ skills[prereq].name }}」の習得</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <a href="/" class="back-link">戻る</a>
+    </div>
+</body>
+</html>

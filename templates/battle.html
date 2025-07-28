@@ -1,0 +1,105 @@
+<!-- templates/battle.html (魔導書システム対応版) -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Lexicon Chronicle - Battle</title>
+    <style>
+        /* (基本的なスタイルは変更なし) */
+        body { font-family: sans-serif; background-color: #f0f0f0; }
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;}
+        .status-bar { display: flex; justify-content: space-around; margin-bottom: 20px; font-weight: bold; font-size: 1.1em; }
+        .status-bar span { background-color: #eee; padding: 8px 12px; border-radius: 15px; }
+        .charge-power { color: #2e2efc; }
+        .monster-area img { max-height: 150px; }
+        .message-box { min-height: 40px; margin: 20px; padding: 10px; background-color: #eef; border-radius: 5px; }
+        .actions-area { margin-top: 20px; }
+        .spellbook-button { background-color: #6f42c1; color: white; border: none; padding: 10px 20px; font-size: 1em; border-radius: 5px; cursor: pointer; margin-top: 10px; }
+        /* ▼▼▼ 新規スタイル ▼▼▼ */
+        .spellbook { border: 2px solid #6f42c1; border-radius: 8px; margin-top: 15px; padding: 15px; display: none; /* 初期状態は非表示 */ }
+        .spell-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+        .spell-info p { margin: 0; text-align: left; }
+        .spell-info .spell-name { font-weight: bold; }
+        .spell-info .spell-cost { font-size: 0.9em; color: #555; }
+        .cast-button { background-color: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+        .cast-button:disabled { background-color: #ccc; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- (ステータスバー、モンスターエリア、メッセージボックスは変更なし) -->
+        <div class="status-bar">
+            <span>あなた (HP: {{ session.player_hp }} / {{ session.max_hp }})</span>
+            <span class="charge-power">チャージ: {{ session.charge_power }}</span>
+            <span>{{ session.monster_name }} (HP: {{ session.monster_hp }})</span>
+        </div>
+        <div class="monster-area">
+            <img src="{{ url_for('static', filename='images/' + session.monster_image) }}" alt="{{ session.monster_name }}" style="max-height: 150px;">
+        </div>
+        <div class="message-box">
+            <p>{{ session.message }}</p>
+        </div>
+
+        {% if session.player_hp > 0 and session.monster_hp > 0 %}
+            <div class="actions-area">
+                <!-- 通常の単語詠唱フォーム -->
+                <div class="question-area">
+                    <h2>問題: 【{{ session.question_jp }}】</h2>
+                    <p>(品詞: {{ session.word_part }})</p>
+                </div>
+                <form action="/submit_answer" method="POST">
+                    <input type="text" name="answer" placeholder="ここに呪文を..." autocomplete="off" autofocus>
+                    <input type="submit" value="詠唱する！">
+                </form>
+
+                <!-- 魔導書を開くボタン -->
+                <button id="toggle-spellbook" class="spellbook-button">魔導書を開く</button>
+
+                <!-- 魔導書の中身（JavaScriptで表示/非表示を切り替える） -->
+                <div id="spellbook" class="spellbook">
+                    <h3>詠唱可能な魔法</h3>
+                    {% for spell_id in session.known_words %}
+                        {% set spell = RECIPES[spell_id].spell %}
+                        <div class="spell-item">
+                            <div class="spell-info">
+                                <p class="spell-name">{{ spell.name }}</p>
+                                <p class="spell-cost">消費チャージ: {{ spell.cost }} | 効果: {% if spell.effect == 'damage' %}ダメージ{{ spell.power }}{% elif spell.effect == 'heal' %}HP回復{{ spell.power }}{% endif %}</p>
+                            </div>
+                            <form action="/cast_spell" method="POST" style="display: inline;">
+                                <input type="hidden" name="spell_id" value="{{ spell_id }}">
+                                <button type="submit" class="cast-button" {% if session.charge_power < spell.cost %}disabled{% endif %}>
+                                    詠唱
+                                </button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                    {% if not session.known_words %}
+                        <p>まだ詠唱できる魔法がない。工房で新たな単語をフォージしよう。</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            <a href="/">クエストボードに戻る</a>
+        {% endif %}
+    </div>
+
+    <!-- ▼▼▼ ここからがJavaScript ▼▼▼ -->
+    <script>
+        // ボタンと魔導書の要素を取得
+        const toggleButton = document.getElementById('toggle-spellbook');
+        const spellbook = document.getElementById('spellbook');
+
+        // ボタンがクリックされた時の処理
+        toggleButton.addEventListener('click', function() {
+            // 魔導書が非表示なら表示、表示なら非表示にする
+            if (spellbook.style.display === 'none' || spellbook.style.display === '') {
+                spellbook.style.display = 'block';
+                toggleButton.textContent = '魔導書を閉じる'; // ボタンの文字を変更
+            } else {
+                spellbook.style.display = 'none';
+                toggleButton.textContent = '魔導書を開く'; // ボタンの文字を元に戻す
+            }
+        });
+    </script>
+</body>
+</html>

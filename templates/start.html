@@ -1,0 +1,70 @@
+<!-- templates/start.html (復習システム対応版) -->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Lexicon Chronicle - クエストボード</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f0f0f0; text-align: center; padding-top: 20px; }
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1, h2, h3 { color: #333; }
+        .player-status { border: 2px solid #ddd; padding: 10px; margin-bottom: 20px; border-radius: 8px; }
+        .exp-bar { background-color: #e9ecef; border-radius: .25rem; height: 1.5rem; margin-top: 5px;}
+        .exp-bar-fill { background-color: #007bff; height: 100%; border-radius: .25rem; text-align: right; color: white; padding-right: 5px; line-height: 1.5rem;}
+        .result-message { min-height: 24px; margin: 20px 0; padding: 15px; background-color: #eef; border-radius: 5px; font-weight: bold; }
+        .quest-board { margin-top: 20px; border-top: 2px solid #007bff; padding-top: 15px; }
+        .quest-item { border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 5px; text-align: left; }
+        .quest-item h4 { margin: 0 0 10px 0; }
+        .start-button { background-color: #28a745; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; float: right; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lexicon Chronicle</h1>
+        
+        <div class="player-status">
+            <h3>プレイヤー情報 <a href="/skills" style="font-size: 0.7em;">[スキル]</a> <a href="/workshop" style="font-size: 0.7em;">[工房]</a></h3>
+            <p>レベル: {{ session.level }} | スキルポイント: {{ session.skill_points }} | 最大HP: {{ session.max_hp }}</p>
+            <p>経験値(EXP): {{ session.exp }} / {{ session.next_level_exp }}</p>
+            <div class="exp-bar">
+                <div class="exp-bar-fill" style="width: {{ (session.exp / session.next_level_exp) * 100 }}%;">
+                    {{ ((session.exp / session.next_level_exp) * 100)|round(1) }}%
+                </div>
+            </div>
+        </div>
+
+        {% if result_message %}
+            <div class="result-message"><p>{{ result_message }}</p></div>
+        {% endif %}
+
+        <div class="quest-board">
+            <h2>クエストボード</h2>
+            
+            <!-- 復習すべき単語がある場合のみ、神託クエストを表示 -->
+            {% if review_needed %}
+            <div class="quest-item" style="border: 2px solid #6f42c1;">
+                <form action="/start_quest" method="POST" style="display: inline;">
+                    <input type="hidden" name="quest_id" value="q_review">
+                    <button type="submit" class="start-button" style="background-color: #6f42c1;">挑戦する</button>
+                </form>
+                <h4>記憶の神託</h4>
+                <p>あなたの弱点を克服するための特別な試練です。</p>
+            </div>
+            {% endif %}
+
+            {% for quest_id, quest_info in quests.items() %}
+            <div class="quest-item">
+                <form action="/start_quest" method="POST" style="display: inline;">
+                    <input type="hidden" name="quest_id" value="{{ quest_id }}">
+                    <button type="submit" class="start-button">挑戦する</button>
+                </form>
+                <h4>{{ quest_info.name }}</h4>
+                <p>推奨Lv: -- | 報酬EXP: {{ quest_info.exp_reward }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+    </div>
+</body>
+</html>
