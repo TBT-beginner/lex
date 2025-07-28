@@ -9,6 +9,9 @@
     },
     "exp_reward": 50,
     "loot_table": ["re", "spect"],
+    "item_loot": [
+      { "id": "potion_hp_small", "chance": 0.3 }
+    ],
     "words": {
       "attack": { "part": "動詞", "jp": "攻撃する" },
       "strike": { "part": "動詞", "jp": "打つ" },
@@ -30,6 +33,10 @@
     },
     "exp_reward": 25,
     "loot_table": ["pre", "view"],
+    "item_loot": [
+      { "id": "potion_hp_small", "chance": 0.5 },
+      { "id": "drink_charge_small", "chance": 0.2 }
+    ],
     "words": {
       "see": { "part": "動詞", "jp": "見る" },
       "run": { "part": "動詞", "jp": "走る" },

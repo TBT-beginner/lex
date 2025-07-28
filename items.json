@@ -1,0 +1,16 @@
+{
+  "potion_hp_small": {
+    "name": "HP回復ポーション(小)",
+    "type": "item",
+    "description": "HPを25ポイント回復する、応急処置用の薬品。",
+    "effect": "heal_hp",
+    "power": 25
+  },
+  "drink_charge_small": {
+    "name": "チャージドリンク(小)",
+    "type": "item",
+    "description": "集中力を高め、チャージパワーを20ポイント得る。",
+    "effect": "gain_charge",
+    "power": 20
+  }
+}

@@ -1,85 +1,130 @@
-<!-- templates/workshop.html -->
+<!-- templates/workshop.html (アイテムタブ対応版) -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>語源の工房</title>
+    <title>工房</title>
     <style>
         body { font-family: sans-serif; background-color: #f0f0f0; padding-top: 20px; }
         .container { max-width: 800px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h2 { text-align: center; }
+        .tab-menu { border-bottom: 2px solid #ccc; margin-bottom: 20px; }
+        .tab-button { background: #eee; border: 1px solid #ccc; border-bottom: none; padding: 10px 20px; cursor: pointer; font-size: 1em; }
+        .tab-button.active { background: white; border-top: 2px solid #007bff; border-left: 2px solid #007bff; border-right: 2px solid #007bff; position: relative; top: 2px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
         .workshop-layout { display: flex; gap: 20px; }
         .inventory-section, .forge-section { flex: 1; }
-        h2, h3 { text-align: center; }
-        .inventory { list-style: none; padding: 0; }
-        .inventory-item { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
-        .recipe-item { border: 1px solid #007bff; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+        .item-list { list-style: none; padding: 0; }
+        .item { border: 1px solid #ccc; padding: 15px; margin-bottom: 10px; border-radius: 5px; text-align: left; }
         .item-name { font-weight: bold; font-size: 1.1em; }
         .item-count { float: right; font-weight: bold; }
-        .materials-list { font-size: 0.9em; color: #555; }
+        .item-desc { color: #555; font-size: 0.9em; }
         .forge-button { background-color: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; float: right; }
         .forge-button:disabled { background-color: #ccc; cursor: not-allowed; }
-        .learned-badge { background-color: #6c757d; color: white; padding: 5px 10px; border-radius: 5px; float: right; }
+        .learned-badge { background-color: #6c757d; color: white; padding: 5px 10px; border-radius: 5px; float: right; font-size: 0.9em;}
         .back-link { display: block; text-align: center; margin-top: 20px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>語源の工房</h2>
-        
+        <h2>工房</h2>
+        <div class="tab-menu">
+            <button class="tab-button active" onclick="openTab(event, 'forge-tab')">フォージ</button>
+            <button class="tab-button" onclick="openTab(event, 'items-tab')">アイテム</button>
+        </div>
+
         {% if session.get('result_message') %}
             <p style="color: green; text-align:center;">{{ session.pop('result_message') }}</p>
         {% endif %}
 
-        <div class="workshop-layout">
-            <!-- 所持品セクション -->
-            <div class="inventory-section">
-                <h3>インベントリ</h3>
-                <ul class="inventory">
-                    {% if session.inventory %}
-                        {% for item_id, count in session.inventory.items() if count > 0 %}
-                        <li class="inventory-item">
-                            <span class="item-count">x {{ count }}</span>
-                            <span class="item-name">{{ materials[item_id].name }}</span>
-                        </li>
+        <!-- フォージタブ -->
+        <div id="forge-tab" class="tab-content active">
+            <div class="workshop-layout">
+                <div class="inventory-section">
+                    <h3>語源の欠片</h3>
+                    <ul class="item-list">
+                        {% set material_items = namespace(found=false) %}
+                        {% for item_id, count in session.inventory.items() if item_id in materials and count > 0 %}
+                            <li class="item">
+                                <span class="item-count">x {{ count }}</span>
+                                <span class="item-name">{{ materials[item_id].name }}</span>
+                            </li>
+                            {% set material_items.found = true %}
                         {% endfor %}
-                    {% else %}
-                        <p>まだ何も素材がありません。</p>
-                    {% endif %}
-                </ul>
-            </div>
-
-            <!-- フォージセクション -->
-            <div class="forge-section">
-                <h3>レシピ一覧</h3>
-                {% for recipe_id, recipe in recipes.items() %}
-                <div class="recipe-item">
-                    {% if recipe_id in session.known_words %}
-                        <span class="learned-badge">習得済み</span>
-                    {% else %}
-                        {% set can_forge = namespace(value=True) %}
-                        {% for material, required in recipe.materials.items() %}
-                            {% if session.inventory.get(material, 0) < required %}
-                                {% set can_forge.value = False %}
-                            {% endif %}
-                        {% endfor %}
-                        <form action="/forge_word" method="POST" style="display: inline;">
-                            <input type="hidden" name="recipe_id" value="{{ recipe_id }}">
-                            <button type="submit" class="forge-button" {% if not can_forge.value %}disabled{% endif %}>作成</button>
-                        </form>
-                    {% endif %}
-                    <h4 class="item-name">{{ recipe.name }} ({{ recipe.jp }})</h4>
-                    <p class="materials-list">
-                        必要素材:
-                        {% for material, required in recipe.materials.items() %}
-                            {{ materials[material].name }} x {{ required }}
-                        {% endfor %}
-                    </p>
+                        {% if not material_items.found %}
+                            <p>まだ何も素材がありません。</p>
+                        {% endif %}
+                    </ul>
                 </div>
-                {% endfor %}
+                <div class="forge-section">
+                    <h3>レシピ一覧</h3>
+                    {% for recipe_id, recipe in recipes.items() %}
+                    <div class="item">
+                        <div style="float: right;">
+                        {% if recipe_id in session.known_words %}
+                            <span class="learned-badge">習得済み</span>
+                        {% else %}
+                            {% set can_forge = namespace(value=True) %}
+                            {% for material, required in recipe.materials.items() %}
+                                {% if session.inventory.get(material, 0) < required %}
+                                    {% set can_forge.value = False %}
+                                {% endif %}
+                            {% endfor %}
+                            <form action="/forge_word" method="POST" style="display: inline;">
+                                <input type="hidden" name="recipe_id" value="{{ recipe_id }}">
+                                <button type="submit" class="forge-button" {% if not can_forge.value %}disabled{% endif %}>作成</button>
+                            </form>
+                        {% endif %}
+                        </div>
+                        <h4 class="item-name">{{ recipe.name }} ({{ recipe.jp }})</h4>
+                        <p class="item-desc">必要素材: 
+                            {% for material, required in recipe.materials.items() %}
+                                {{ materials[material].name }} x {{ required }}
+                            {% endfor %}
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
+        </div>
+
+        <!-- アイテムタブ -->
+        <div id="items-tab" class="tab-content">
+            <h3>所持アイテム一覧</h3>
+            <ul class="item-list">
+                {% set consumable_items = namespace(found=false) %}
+                {% for item_id, count in session.inventory.items() if item_id in items and count > 0 %}
+                <li class="item">
+                    <span class="item-count">x {{ count }}</span>
+                    <span class="item-name">{{ items[item_id].name }}</span>
+                    <p class="item-desc">{{ items[item_id].description }}</p>
+                </li>
+                {% set consumable_items.found = true %}
+                {% endfor %}
+                {% if not consumable_items.found %}
+                    <p>まだ消費アイテムを持っていません。</p>
+                {% endif %}
+            </ul>
         </div>
 
         <a href="/" class="back-link">戻る</a>
     </div>
+
+    <script>
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tab-button");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+    </script>
 </body>
 </html>
